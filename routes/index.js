@@ -1,10 +1,17 @@
 var express = require('express');
 var router = express.Router();
 
+const path = require('path')
+require('dotenv').config({path: path.join(__dirname, "../.env")});
+
 // connect to mongodb through mongoose
 require('../services/mongoose_db_connection')
 const ArticleModel = require('../models/article')
 let logger = require('../utils/loggers/logger')
+
+const HOST = process.env.HOST
+const PORT = process.env.PORT
+const serverUrl = `${HOST}:${PORT}`
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -25,7 +32,7 @@ router.get('/spiderProtocol', (req, res) => {
         frequency: 5,
       }, 
       contentList:{
-        url: "http://139.199.87.221:8084/content",
+        url: `${serverUrl}/content`,
         frequency: 5,
         pageSize: 10
       } 
