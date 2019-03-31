@@ -1,0 +1,7 @@
+.env
+.idea
+.DS_Store
+node_modules
+logs
+id_generation_record.txt
+package-lock.json
