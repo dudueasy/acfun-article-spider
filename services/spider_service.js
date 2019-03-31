@@ -17,7 +17,7 @@ const cheerio = require('cheerio');
 const RedisService = require('../services/content_id_service');
 const moment = require('moment');
 const jieba = require('nodejieba');
-const ArticleModel = require('../models/article')
+const ArticleModel = require('../models/article');
 
 const logger = require('../utils/loggers/logger');
 
@@ -38,6 +38,7 @@ const collectionName = process.env.DB_COLLECTION;
 // init spider config
 const resourceUrlPrefix = process.env.RESOURCE_URL_PREFIX;
 const spideringInterval = Number(process.env.INTERVAL);
+const CONTENT_SELECTOR = process.env.CONTENT_SELECTOR;
 
 // a function to begin spider, this function does following task:
 // 1. get multiple random resource ids from redis source_id_set
@@ -86,16 +87,20 @@ async function getSingleArticle(articleId) {
         if (e.response.status === 404) {
           const error = new Error('Not Found');
           error.errorCode = 4040000;
+          RedisService.markArticleIdFailed(articleId);
           throw error;
         } else if (e.response.status >= 500) {
 
           const error = new Error('Internal Server Error');
           error.errorCode = 5000000;
+          RedisService.markArticleIdFailed(articleId);
           throw error;
         } else {
+          RedisService.markArticleIdFailed(articleId);
           throw e;
         }
       } else if (e.request) {
+        RedisService.markArticleIdFailed(articleId);
         throw new Error("no response was received");
       }
     });
@@ -106,8 +111,16 @@ async function getSingleArticle(articleId) {
   // including category and user defined tags
   let tags = [];
 
-  let articleContent = $('.article-content')[0];
-  let title = $('.caption').text();
+
+  let articleContent = $(`${CONTENT_SELECTOR}`)[0];
+  let title = $('title').text();
+
+  console.log("title: ", title);
+
+  if (title.indexOf('出错啦') > -1) {
+    RedisService.markArticleIdFailed(articleId);
+    throw new Error("该连接指向一个错误页面");
+  }
 
   // get divided tags from article title
   let titleTags = jieba.extract(title, 5);
@@ -150,6 +163,7 @@ async function getSingleArticle(articleId) {
       console.log('this is a video resource');
     }
 
+    RedisService.markArticleIdFailed(articleId);
     throw new Error('target url does not link to a article resource');
   } else {
     /*  successfully get resource data
@@ -182,7 +196,7 @@ async function getSingleArticle(articleId) {
     );
 
     let insertedData = insertedModel._doc;
-    console.log("insertedData: ",insertedData)
+    console.log("insertedData: ", insertedData);
 
     console.log("insertedData:  ", insertedData._id);
     // _id = insertedData.value._id
