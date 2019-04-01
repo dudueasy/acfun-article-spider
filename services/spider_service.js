@@ -141,10 +141,18 @@ async function getSingleArticle(articleId) {
 
   //retrieve user defined tags from HTML data
   let userDefinedTags = [];
-  let userTagsResponse = await axios(`${process.env.USER_DEFINED_TAGS_API}?contentId=${articleId}`);
-  userTagsResponse.data.data.tagList.forEach(({tagName}) => {
-    userDefinedTags.push(tagName);
-  });
+  await axios(`${process.env.USER_DEFINED_TAGS_API}?contentId=${articleId}`).then(
+    response => {
+
+      response.data.data.tagList.forEach(({tagName}) => {
+        userDefinedTags.push(tagName);
+      });
+    },
+  ).catch(e => {
+      RedisService.markArticleIdFailed(articleId);
+      throw new Error('articleId is not available anymore');
+    },
+  );
 
   // 用户自定义的文章标签
   userDefinedTags.forEach(tag => {
