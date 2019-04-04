@@ -1,6 +1,10 @@
 # 项目说明
 这是一个用于获取 acfun 文章的爬虫微服务项目, 同时提供了http服务和爬虫服务 
  
+[ 查看完整文档 ](https://apolo-du.gitbook.io/acfun-article-spider-service/)
+
+[ 访问示例服务器 ](http://139.199.87.221:8085/)
+
 # 项目配置
 通过 dotenv 模块和 .env 文件来配置项目, 所有可配置项目请参考 .env.default
 
