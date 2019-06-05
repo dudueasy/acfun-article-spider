@@ -140,24 +140,25 @@ async function getSingleArticle(articleId) {
   });
 
   //retrieve user defined tags from HTML data
-  let userDefinedTags = [];
-  await axios(`${process.env.USER_DEFINED_TAGS_API}?contentId=${articleId}`).then(
-    response => {
+  // let userDefinedTags = [];
+  // await axios(`${process.env.USER_DEFINED_TAGS_API}?contentId=${articleId}`).then(
+  //   response => {
+  //
+  //     response.data.data.tagList.forEach(({tagName}) => {
+  //       userDefinedTags.push(tagName);
+  //     });
+  //   },
+  // ).catch(e => {
+  //     RedisService.markArticleIdFailed(articleId);
+  //     throw new Error('articleId is not available anymore');
+  //   },
+  // );
+  //
+  // // 用户自定义的文章标签
+  // userDefinedTags.forEach(tag => {
 
-      response.data.data.tagList.forEach(({tagName}) => {
-        userDefinedTags.push(tagName);
-      });
-    },
-  ).catch(e => {
-      RedisService.markArticleIdFailed(articleId);
-      throw new Error('articleId is not available anymore');
-    },
-  );
-
-  // 用户自定义的文章标签
-  userDefinedTags.forEach(tag => {
-    tags.push(new Tag('ARTICLE_TAG_USER', tag.trim(), 0.5));
-  });
+  //   tags.push(new Tag('ARTICLE_TAG_USER', tag.trim(), 0.5));
+  // });
 
 
   let originalCreatedAt = $('.up-time').text();
